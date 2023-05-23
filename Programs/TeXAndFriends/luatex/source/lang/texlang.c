@@ -287,6 +287,7 @@ void load_hyphenation(struct tex_language *lang, const unsigned char *buff)
     int id ;
     if (lang == NULL)
         return;
+    lua_checkstack(Luas, 3);
     if (lang->exceptions == 0) {
         lua_newtable(Luas);
         lang->exceptions = luaL_ref(Luas, LUA_REGISTRYINDEX);
@@ -314,6 +315,7 @@ void load_hyphenation(struct tex_language *lang, const unsigned char *buff)
             }
         }
     }
+    lua_pop(Luas, 1);
 }
 
 void clear_hyphenation(struct tex_language *lang)
@@ -470,12 +472,7 @@ static halfword compound_word_break(halfword t, int clang)
 void set_disc_field(halfword f, halfword t)
 {
     if (t != null) {
-        /*tex
-            No |couple_nodes(f, t);| as we can better not expose |f| as |prev|
-            pointer.
-        */
-        vlink(f) = t ;
-        alink(t) = null ;
+        couple_nodes(f, t);
         tlink(f) = tail_of_list(t);
     } else {
         vlink(f) = null;

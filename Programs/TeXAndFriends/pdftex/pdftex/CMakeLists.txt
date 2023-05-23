@@ -1,27 +1,12 @@
-## CMakeLists.txt: miktex-pdftex build rules
+## CMakeLists.txt
 ##
-## Copyright (C) 2021 Christian Schenk
+## Copyright (C) 2021-2022 Christian Schenk
 ## 
-## This file is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License as published
-## by the Free Software Foundation; either version 2, or (at your
-## option) any later version.
-## 
-## This file is distributed in the hope that it will be useful, but
-## WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-## General Public License for more details.
-## 
-## You should have received a copy of the GNU General Public License
-## along with this file; if not, write to the Free Software
-## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-## USA.
+## This file is free software; the copyright holder gives
+## unlimited permission to copy and/or distribute it, with or
+## without modifications, as long as this notice is preserved.
 
 set(MIKTEX_CURRENT_FOLDER ${MIKTEX_CURRENT_FOLDER}/pdfTeX)
-
-if(LINK_EVERYTHING_STATICALLY)
-    use_static_crt()
-endif()
 
 default_char_type_is_unsigned()
 
@@ -175,75 +160,45 @@ set_source_files_properties(
     PROPERTIES COMPILE_FLAGS "-DCOMPILING_PDFTEX_CC"
 )
 
-if(LINK_EVERYTHING_STATICALLY)
-    if(USE_SYSTEM_JPEG)
-        target_link_libraries(${MIKTEX_PREFIX}pdftex MiKTeX::Imported::JPEG)
-    else()
-        target_link_libraries(${MIKTEX_PREFIX}pdftex ${jpeg_lib_name})
-    endif()
-    if(USE_SYSTEM_PNG)
-        target_link_libraries(${MIKTEX_PREFIX}pdftex MiKTeX::Imported::PNG)
-    else()
-        target_link_libraries(${MIKTEX_PREFIX}pdftex ${png_lib_name})
-    endif()
-    target_link_libraries(${MIKTEX_PREFIX}pdftex
-        ${kpsemu_lib_name}
-        ${md5_lib_name}
-        ${w2cemu_lib_name}
-        ${web2c_sources_lib_name}
-        ${xpdf_lib_name}
-    )
-    if(MIKTEX_NATIVE_WINDOWS)
-        target_link_libraries(${MIKTEX_PREFIX}pdftex
-        ${unxemu_lib_name}
-        ${utf8wrap_lib_name}
-        )
-    endif()
+if(USE_SYSTEM_JPEG)
+    target_link_libraries(${pdftex_target_name} PRIVATE MiKTeX::Imported::JPEG)
 else()
-    if(USE_SYSTEM_JPEG)
-        target_link_libraries(${pdftex_target_name} PRIVATE MiKTeX::Imported::JPEG)
-    else()
-        target_link_libraries(${pdftex_target_name} PRIVATE ${jpeg_dll_name})
-    endif()
-    if(USE_SYSTEM_PNG)
-        target_link_libraries(${pdftex_target_name} PRIVATE MiKTeX::Imported::PNG)
-    else()
-        target_link_libraries(${pdftex_target_name} PRIVATE ${png_dll_name})
-    endif()
+    target_link_libraries(${pdftex_target_name} PRIVATE ${jpeg_dll_name})
+endif()
+if(USE_SYSTEM_PNG)
+    target_link_libraries(${pdftex_target_name} PRIVATE MiKTeX::Imported::PNG)
+else()
+    target_link_libraries(${pdftex_target_name} PRIVATE ${png_dll_name})
+endif()
+target_link_libraries(${pdftex_target_name}
+    PRIVATE
+    ${kpsemu_dll_name}
+    ${md5_dll_name}
+    ${w2cemu_dll_name}
+    ${web2c_sources_dll_name}
+    ${xpdf_lib_name}
+)
+if(MIKTEX_NATIVE_WINDOWS)
     target_link_libraries(${pdftex_target_name}
-        PRIVATE
-        ${kpsemu_dll_name}
-        ${md5_dll_name}
-        ${w2cemu_dll_name}
-        ${web2c_sources_dll_name}
-        ${xpdf_lib_name}
+    PRIVATE
+        ${unxemu_dll_name}
+        ${utf8wrap_dll_name}
     )
-    if(MIKTEX_NATIVE_WINDOWS)
-        target_link_libraries(${pdftex_target_name}
-        PRIVATE
-            ${unxemu_dll_name}
-            ${utf8wrap_dll_name}
-        )
-    endif()
 endif()
 
-if(NOT LINK_EVERYTHING_STATICALLY)
-    if(USE_SYSTEM_ZLIB)
-        target_link_libraries(${pdftex_target_name} PRIVATE MiKTeX::Imported::ZLIB)
-    else()
-        target_link_libraries(${pdftex_target_name} PRIVATE ${zlib_dll_name})
-    endif()
-    if(MIKTEX_NATIVE_WINDOWS)
-        target_link_libraries(${pdftex_target_name}
-        PRIVATE
-            ${regex_dll_name}
-        )
-    endif()
+if(USE_SYSTEM_ZLIB)
+    target_link_libraries(${pdftex_target_name} PRIVATE MiKTeX::Imported::ZLIB)
+else()
+    target_link_libraries(${pdftex_target_name} PRIVATE ${zlib_dll_name})
 endif()
-
-if(NOT LINK_EVERYTHING_STATICALLY)
-    delay_load(${pdftex_target_name}
-        ${png_dll_name}
+if(MIKTEX_NATIVE_WINDOWS)
+    target_link_libraries(${pdftex_target_name}
+    PRIVATE
         ${regex_dll_name}
     )
 endif()
+
+delay_load(${pdftex_target_name}
+    ${png_dll_name}
+    ${regex_dll_name}
+)

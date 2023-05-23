@@ -1,5 +1,5 @@
 /*   $Id$
- *   Copyright 1986-2022 Tomas Rokicki.
+ *   Copyright 1986-2023 Tomas Rokicki.
  *   This is dvips, a freely redistributable PostScript driver
  *   for dvi files. You may freely use, modify and/or distribute this
  *   program or any portion thereof.
@@ -17,10 +17,10 @@
 #if defined(MIKTEX)
 #include "dvips-version.h"
 #define BANNER \
-"This is dvips(k) " MIKTEX_COMP_ORIG_VERSION_STR " (" MIKTEX_PRODUCTNAME_STR MIKTEX_VERSION_STR ")  Copyright 2021 Radical Eye Software"
+"This is dvips(k) " MIKTEX_COMP_ORIG_VERSION_STR " (" MIKTEX_PRODUCTNAME_STR MIKTEX_VERSION_STR ")  Copyright 2023 Radical Eye Software"
 #else
 #define BANNER \
-"This is dvips(k) " VERSION " (" TL_VERSION ")  Copyright 2022 Radical Eye Software"
+"This is dvips(k) " VERSION " (" TL_VERSION ")  Copyright 2023 Radical Eye Software"
 #endif
 #define BANNER2 "(www.radicaleye.com)"
 #if defined(MIKTEX)
@@ -223,6 +223,9 @@ typedef struct tfd {
 #define VF_TEX   (1)
 #define VF_OMEGA (2)
 #define VF_PTEX  (3)
+#define TFM_TEX   (0x000)
+#define OFM_OMEGA (0x100)
+#define JFM_PTEX  (0x200)
 
 /*  A fontmap associates a fontdesc with a font number.
  */

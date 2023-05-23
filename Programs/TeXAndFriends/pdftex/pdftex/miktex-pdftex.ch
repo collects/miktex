@@ -1,20 +1,10 @@
-%% miktex-pdftex.ch: miktex-pdftex change file
+%% miktex-pdftex.ch
+%%
+%% Copyright (C) 2021-2023 Christian Schenk
 %% 
-%% Copyright (C) 2021 Christian Schenk
-%% 
-%% This file is free software; you can redistribute it and/or modify it
-%% under the terms of the GNU General Public License as published by the
-%% Free Software Foundation; either version 2, or (at your option) any
-%% later version.
-%% 
-%% This file is distributed in the hope that it will be useful, but
-%% WITHOUT ANY WARRANTY; without even the implied warranty of
-%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-%% General Public License for more details.
-%% 
-%% You should have received a copy of the GNU General Public License
-%% along with This file; if not, write to the Free Software Foundation,
-%% 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+%% This file is free software; the copyright holder gives
+%% unlimited permission to copy and/or distribute it, with or
+%% without modifications, as long as this notice is preserved.
 
 % _____________________________________________________________________________
 %
@@ -194,6 +184,7 @@ pdf_font_type:=xmalloc_array(eight_bits, font_max);
 pdf_font_attr:=xmalloc_array(str_number, font_max);
 pdf_font_blink:=xmalloc_array(internal_font_number, font_max);
 pdf_font_elink:=xmalloc_array(internal_font_number, font_max);
+pdf_font_has_space_char:=xmalloc_array(internal_font_number, font_max);
 pdf_font_stretch:=xmalloc_array(integer, font_max);
 pdf_font_shrink:=xmalloc_array(integer, font_max);
 pdf_font_step:=xmalloc_array(integer, font_max);
@@ -224,6 +215,7 @@ for font_k := font_base to font_max do begin
     pdf_font_attr[font_k] := "";
     pdf_font_blink[font_k] := null_font;
     pdf_font_elink[font_k] := null_font;
+    pdf_font_has_space_char[font_k] := false;
     pdf_font_stretch[font_k] := null_font;
     pdf_font_shrink[font_k] := null_font;
     pdf_font_step[font_k] := 0;
@@ -314,6 +306,7 @@ pdf_font_type:=xmalloc_array(eight_bits,font_max);
 pdf_font_attr:=xmalloc_array(str_number,font_max);
 pdf_font_blink:=xmalloc_array(internal_font_number,font_max);
 pdf_font_elink:=xmalloc_array(internal_font_number,font_max);
+pdf_font_has_space_char:=xmalloc_array(internal_font_number,font_max);
 pdf_font_stretch:=xmalloc_array(integer,font_max);
 pdf_font_shrink:=xmalloc_array(integer,font_max);
 pdf_font_step:=xmalloc_array(integer,font_max);
@@ -344,6 +337,7 @@ for font_k := font_base to font_max do begin
     pdf_font_attr[font_k] := "";
     pdf_font_blink[font_k] := null_font;
     pdf_font_elink[font_k] := null_font;
+    pdf_font_has_space_char[font_k] := false;
     pdf_font_stretch[font_k] := null_font;
     pdf_font_shrink[font_k] := null_font;
     pdf_font_step[font_k] := 0;

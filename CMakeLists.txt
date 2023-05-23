@@ -462,6 +462,12 @@ option(
 )
 
 option(
+    WITH_STANDALONE_SETUP
+    "Build standalone setup programs."
+    ${MIKTEX_NATIVE_WINDOWS}
+)
+
+option(
     WITH_UI_MFC
     "Build MFC components."
     ${MSVC}
@@ -486,9 +492,9 @@ option(
 )
 
 option(
-    LINK_EVERYTHING_STATICALLY
-    "Don't build and use shared libraries."
-    FALSE
+    WITH_LEGACY_WINDOWS_SUPPORT
+    "Wether to support Windows 7/8."
+    TRUE
 )
 
 option(
@@ -524,6 +530,12 @@ option(
 option(
     WITH_MIKTEX_DOC
     "Build miktex-doc package."
+    ${WIN32}
+)
+
+option(
+    WITH_MIKTEX_API_DOC
+    "Build API documentation."
     ${WIN32}
 )
 
@@ -973,21 +985,28 @@ endif()
 ###############################################################################
 ## find/check stuff
 
-if(LINK_EVERYTHING_STATICALLY)
-    set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_STATIC_LIBRARY_SUFFIX})
-endif()
-
 if(MIKTEX_NATIVE_WINDOWS)
-    add_definitions(
-        -DWINVER=0x0600
-        -D_WIN32_WINNT=0x0600
-    )
-    if(CMAKE_CL_64)
-        set(CMAKE_CREATE_WIN32_EXE /SUBSYSTEM:WINDOWS,6.00)
-        set(CMAKE_CREATE_CONSOLE_EXE /SUBSYSTEM:CONSOLE,6.00)
+    if(WITH_LEGACY_WINDOWS_SUPPORT)
+        add_definitions(
+            -DMIKTEX_SUPPORT_LEGACY_WINDOWS
+        )
+        add_definitions(
+            -DWINVER=0x0600
+            -D_WIN32_WINNT=0x0600
+        )
+        set(CMAKE_C_CREATE_WIN32_EXE /SUBSYSTEM:WINDOWS,6.00)
+        set(CMAKE_C_CREATE_CONSOLE_EXE /SUBSYSTEM:CONSOLE,6.00)
+        set(CMAKE_CXX_CREATE_WIN32_EXE /SUBSYSTEM:WINDOWS,6.00)
+        set(CMAKE_CXX_CREATE_CONSOLE_EXE /SUBSYSTEM:CONSOLE,6.00)
     else()
-        set(CMAKE_CREATE_WIN32_EXE /SUBSYSTEM:WINDOWS,6.00)
-        set(CMAKE_CREATE_CONSOLE_EXE /SUBSYSTEM:CONSOLE,6.00)
+        add_definitions(
+            -DWINVER=0x0a00
+            -D_WIN32_WINNT=0x0a00
+        )
+        set(CMAKE_C_CREATE_WIN32_EXE /SUBSYSTEM:WINDOWS,10.00)
+        set(CMAKE_C_CREATE_CONSOLE_EXE /SUBSYSTEM:CONSOLE,10.00)
+        set(CMAKE_CXX_CREATE_WIN32_EXE /SUBSYSTEM:WINDOWS,10.00)
+        set(CMAKE_CXX_CREATE_CONSOLE_EXE /SUBSYSTEM:CONSOLE,10.00)
     endif()
 endif()
 
@@ -1000,6 +1019,12 @@ set(required_programs
     xgettext
     xsltproc
 )
+
+if(WITH_MIKTEX_API_DOC)
+    list(APPEND required_programs
+        doxygen
+    )
+endif()
 
 if(WITH_MIKTEX_DOC)
     list(APPEND required_programs
@@ -1891,7 +1916,7 @@ if(USE_SYSTEM_LZMA)
         INTERFACE_INCLUDE_DIRECTORIES "${LIBLZMA_INCLUDE_DIRS}"
     )
 else()
-    add_subdirectory(${MIKTEX_REL_XZUTILS_DIR})
+    add_subdirectory(${MIKTEX_REL_XZ_DIR})
 endif()
 
 if(USE_SYSTEM_MPFR)
@@ -2213,6 +2238,34 @@ if(WITH_UI_QT)
 endif()
 
 ###############################################################################
+## API documentation
+
+if(WITH_MIKTEX_API_DOC)
+    add_custom_command(
+        OUTPUT
+            ${CMAKE_BINARY_DIR}/Documentation/API/html/index.html
+        COMMAND
+            ${DOXYGEN_EXECUTABLE}
+        DEPENDS
+            Doxyfile
+        WORKING_DIRECTORY
+            ${CMAKE_BINARY_DIR}
+        VERBATIM
+    )
+    add_custom_target(gen-api-doc-html ALL
+        DEPENDS
+            ${CMAKE_BINARY_DIR}/Documentation/API/html/index.html
+    )
+    set_property(TARGET gen-api-doc-html PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+    install(
+        DIRECTORY
+            ${CMAKE_BINARY_DIR}/Documentation/API/html/
+        DESTINATION
+            ${MIKTEX_DOC_DESTINATION_DIR}/api/html
+    )
+endif()
+
+###############################################################################
 ## configure Qt plugins (macOS)
 
 if(MIKTEX_MACOS_BUNDLE)
@@ -2293,10 +2346,6 @@ endif()
 
 if(UNIX AND NOT APPLE AND NOT RPMBUILD_EXECUTABLE)
     list(APPEND CPACK_GENERATOR DEB)
-endif()
-
-if(LINK_EVERYTHING_STATICALLY)
-    list(APPEND CPACK_GENERATOR TGZ)
 endif()
 
 if(MIKTEX_MACOS_BUNDLE)

@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Links manager
  *
- * @copyright Copyright © 2002-2022 Christian Schenk
+ * @copyright Copyright © 2002-2023 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
@@ -201,7 +201,7 @@ void LinksManager::ManageLink(const FileLink& fileLink, bool supportsHardLinks, 
             break;
         case LinkType::Copy:
             this->ctx->ui->Verbose(2, fmt::format(T_("Copying: {0} -> {1}..."), Q_(PathName(linkName).ToDisplayString()), Q_(PathName(fileLink.target).ToDisplayString())));
-            File::Copy(PathName(fileLink.target), PathName(linkName), { FileCopyOption::UpdateFndb });
+            File::Copy(PathName(fileLink.target), PathName(linkName), { FileCopyOption::PreserveMode, FileCopyOption::UpdateFndb });
             break;
         default:
             MIKTEX_UNEXPECTED();
@@ -364,8 +364,8 @@ const vector<FileLink> LinksManager::miktexFileLinks =
   { MIKTEX_DVITYPE_EXE, { "dvitype" } },
   { MIKTEX_EPSFFIT_EXE, { "epsffit" } },
   { MIKTEX_EPSTOPDF_EXE,{ "epstopdf", "repstopdf", MIKTEX_PREFIX "epstopdf-unrestricted" } },
-  { MIKTEX_EPTEX_EXE, { "eptex" } },
-  { MIKTEX_EUPTEX_EXE, { "euptex" } },
+  { MIKTEX_EPTEX_EXE, { "eptex", "ptex" } },
+  { MIKTEX_EUPTEX_EXE, { "euptex", "uptex" } },
   { MIKTEX_EXTCONV_EXE, { "extconv" } },
   { MIKTEX_FRIBIDIXETEX_EXE, { "fribidixetex" } },
   { MIKTEX_GFTODVI_EXE, { "gftodvi" } },
@@ -395,15 +395,12 @@ const vector<FileLink> LinksManager::miktexFileLinks =
   { MIKTEX_OVF2OVP_EXE, { "ovf2ovp" } },
   { MIKTEX_OVP2OVF_EXE, { "ovp2ovf" } },
   { MIKTEX_PREFIX "patgen" MIKTEX_EXE_FILE_SUFFIX, { "patgen"} },
-  { MIKTEX_PBIBTEX_EXE, { "pbibtex" } },
   { MIKTEX_PDFTEX_EXE, { "pdftex", MIKTEX_LATEX_EXE, MIKTEX_PDFLATEX_EXE } },
   { MIKTEX_PDFTOSRC_EXE, { "pdftosrc" } },
-  { MIKTEX_PDVITYPE_EXE, { "pdvitype" } },
   { MIKTEX_PK2BM_EXE, { "pk2bm" } },
   { MIKTEX_PLTOTF_EXE, { "pltotf" } },
   { MIKTEX_PMXAB_EXE, { "pmxab" } },
   { MIKTEX_POOLTYPE_EXE, { "pooltype" } },
-  { MIKTEX_PPLTOTF_EXE, { "ppltotf" } },
   { MIKTEX_PREPMX_EXE, { "prepmx" } },
   { MIKTEX_PS2PK_EXE, { "ps2pk" } },
   { MIKTEX_PSBOOK_EXE, { "psbook" } },
@@ -411,8 +408,6 @@ const vector<FileLink> LinksManager::miktexFileLinks =
   { MIKTEX_PSRESIZE_EXE, { "psresize" } },
   { MIKTEX_PSSELECT_EXE, { "psselect" } },
   { MIKTEX_PSTOPS_EXE, { "pstops" } },
-  { MIKTEX_PTEX_EXE, { "ptex" } },
-  { MIKTEX_PTFTOPL_EXE, { "ptftopl" } },
   { MIKTEX_REBAR_EXE, { "rebar" } },
   { MIKTEX_SCOR2PRT_EXE, { "scor2prt" } },
   { MIKTEX_SJISCONV_EXE, { "sjisconv" } },
@@ -429,11 +424,10 @@ const vector<FileLink> LinksManager::miktexFileLinks =
   { MIKTEX_TTF2AFM_EXE, { "ttf2afm" } },
   { MIKTEX_TTF2PK_EXE, { "ttf2pk" } },
   { MIKTEX_TTF2TFM_EXE, { "ttf2tfm" } },
-  { MIKTEX_UPBIBTEX_EXE, { "upbibtex" } },
-  { MIKTEX_UPDVITYPE_EXE, { "updvitype" } },
-  { MIKTEX_UPPLTOTF_EXE, { "uppltotf" } },
-  { MIKTEX_UPTEX_EXE, { "uptex" } },
-  { MIKTEX_UPTFTOPL_EXE, { "uptftopl" } },
+  { MIKTEX_UPBIBTEX_EXE, { "pbibtex", "upbibtex" } },
+  { MIKTEX_UPDVITYPE_EXE, { "pdvitype", "updvitype" } },
+  { MIKTEX_UPPLTOTF_EXE, { "ppltotf", "uppltotf" } },
+  { MIKTEX_UPTFTOPL_EXE, { "ptftopl", "uptftopl" } },
   { MIKTEX_PREFIX "upmendex" MIKTEX_EXE_FILE_SUFFIX, { "upmendex"} },
   { MIKTEX_VFTOVP_EXE, { "vftovp" } },
   { MIKTEX_VPTOVF_EXE, { "vptovf" } },

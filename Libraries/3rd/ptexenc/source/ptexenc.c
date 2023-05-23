@@ -20,6 +20,7 @@
 #include <ptexenc/unicode-jp.h>
 
 #include <ctype.h>
+#include <sys/stat.h>
 #if defined(MIKTEX)
 #include <miktex/Core/c/api.h>
 #if !defined(PATH_MAX)
@@ -71,7 +72,8 @@ const char *ptexenc_version_string = PTEXENCVERSION;
 #if defined(WIN32)
 FILE *Poptr;
 #endif
-int infile_enc_auto = 0;
+int infile_enc_auto = 2;
+/* 0: guess disabled, 1: guess enabled, 2: unspecified */
 
 static int     file_enc = ENC_UNKNOWN;
 static int internal_enc = ENC_UNKNOWN;
@@ -1023,6 +1025,19 @@ char *ptenc_guess_enc(FILE *fp)
     return enc;
 }
 
+void ptenc_set_infile_enc_auto(void)
+{
+   char *p;
+   if (infile_enc_auto == 2) {
+     p = kpse_var_value ("guess_input_kanji_encoding");
+     if (p) {
+       if (*p == '1' || *p == 'y' || *p == 't')  infile_enc_auto = 1;
+       free(p);
+     }
+   }
+   if (infile_enc_auto == 2) infile_enc_auto = 0;
+}
+
 /* input line with encoding conversion */
 long input_line2(FILE *fp, unsigned char *buff, unsigned char *buff2,
                  long pos, const long buffsize, int *lastchar)
@@ -1042,10 +1057,20 @@ long input_line2(FILE *fp, unsigned char *buff, unsigned char *buff2,
             fprintf(stderr, "Detect UTF-8 with BOM #%d\n", fd);
 #endif /* DEBUG */
         }
+        else {
+          struct stat st;
+          if (infile_enc_auto == 2) ptenc_set_infile_enc_auto();
+#ifdef DEBUG
+          if (infile_enc_auto) {
+            fprintf(stderr, "\nInput fd: %d, stdin?: %d, pipe?: %d\n", fd,
+                 fd==fileno(stdin), (fstat(fd, &st)==0 && S_ISFIFO(st.st_mode)));
+          }
+#endif /* DEBUG */
 #if defined(MIKTEX)
-        else if (infile_enc_auto && fd != fileno(stdin) && !miktex_is_pipe(fp)) {
+          if (infile_enc_auto && fd != fileno(stdin) && !miktex_is_pipe(fp)) {
 #else
-        else if (infile_enc_auto && fd != fileno(stdin)) {
+          if (infile_enc_auto && fd != fileno(stdin)
+              && !(fstat(fd, &st)==0 && S_ISFIFO(st.st_mode))) {
 #endif
             char *enc;
             getc4(fp);
@@ -1061,8 +1086,9 @@ long input_line2(FILE *fp, unsigned char *buff, unsigned char *buff2,
                 infile_enc[fd] = get_file_enc();
             }
             if (enc) free(enc);
+          }
+          else infile_enc[fd] = get_file_enc();
         }
-        else infile_enc[fd] = get_file_enc();
     }
 
     while (last < buffsize-30 && (i=getc4(fp)) != EOF && i!='\n' && i!='\r') {
@@ -1160,6 +1186,10 @@ boolean setstdinenc(const char *str)
 void clear_infile_enc(FILE *fp)
 {
     infile_enc[fileno(fp)] = ENC_UNKNOWN;
+}
+long ptenc_conv_first_line(long pos, long last, unsigned char *buff, const long buffsize)
+{
+   return last;
 }
 #else /* !WIN32 */
 static const_string in_filter = NULL;
@@ -1350,26 +1380,21 @@ unsigned char *ptenc_from_internal_enc_string_to_utf8(const unsigned char *is)
     return buf;
 }
 
-int ptenc_get_command_line_args(int *p_ac, char ***p_av)
+long ptenc_conv_first_line(long pos, long last, unsigned char *buff, const long buffsize)
+  /* return new last */
 {
-    int i, argc;
-    char **argv;
-
-    get_terminal_enc();
-    if (terminal_enc == ENC_UTF8 && !is_internalUPTEX()) {
-        argc = *p_ac;
-        argv = xmalloc(sizeof(char *)*(argc+1));
-        for (i=0; i<argc; i++) {
-            argv[i] = ptenc_from_utf8_string_to_internal_enc((*p_av)[i]);
-#ifdef DEBUG
-            fprintf(stderr, "Commandline arguments %d:(%s)\n", i, argv[i]);
-#endif /* DEBUG */
-        }
-        argv[argc] = NULL;
-        *p_av = argv;
-         return terminal_enc;
-    }
-    return 0;
+    unsigned char *old, *new_buf; long new_last, i;
+    if (internal_enc==ENC_UPTEX) return last; /* no conversion needed */
+    old = xmalloc(last-pos+2);
+    if (old==NULL) return last;
+    strncpy(old, buff+pos, last-pos+1); old[last-pos+1]='\0';
+    new_buf = ptenc_from_utf8_string_to_internal_enc(old);
+    if (new_buf==NULL) { free(old); return last; }
+    new_last=pos+strlen(new_buf)-1;
+    if (new_last>=buffsize) new_last=buffsize-1;
+    for (i=0;i<strlen(new_buf); i++) buff[pos+i]=new_buf[i];
+    free(old); free(new_buf);
+    return new_last;
 }
 
 #endif /* !WIN32 */

@@ -1,5 +1,73 @@
 # MiKTeX Change Log
 
+## next
+
+### Fixed issues
+
+- [1333](https://github.com/MiKTeX/miktex/issues/1333): eptex missing \suppress... primitives
+
+## 23.5 - 2023-5-3
+
+### Upgraded programs
+
+* dvipdfmx 20230429
+* luatex 1.17.0
+
+## 23.4 - 2023-4-15
+
+### Upgraded programs
+
+* dvips 2023.1
+* dvisvgm 3.0.4
+* luatex 1.16.1
+* pmxab 3.00
+* pdftex 1.40.25
+* xetex 0.999995
+
+### Fixed issues
+
+- [1287](https://github.com/MiKTeX/miktex/issues/1287): texlua os.spawn does not wait
+- [1305](https://github.com/MiKTeX/miktex/issues/1305): tftopl and MikTeX : information for characters shifted by one?
+- [1309](https://github.com/MiKTeX/miktex/issues/1309): package-set option fails with MiKTeX 22.10 Basic executable
+- [1317](https://github.com/MiKTeX/miktex/issues/1317): On Linux several executables are installed as a copy of /usr/bin/miktex instead of a symlink
+
+## 23.1 - 2023-1-28
+
+### Upgraded programs
+
+* luatex 1.16.0
+
+### Fixed issues
+
+- [1172](https://github.com/MiKTeX/miktex/issues/1172): Change link target directory does not work in versions 22.8 and 22.8.28 in Monterey 12.4
+- [1214](https://github.com/MiKTeX/miktex/issues/1214): Maybe wrong translation?
+- [1246](https://github.com/MiKTeX/miktex/issues/1246): installation log is printed in the stdout of kpsewhich
+
+## 22.12 - 2022-12-12
+
+### Breaking changes
+
+#### MiKTeX Ghostscript deprecation
+
+MiKTeX now prefers the Ghostscript executable which is installed on the system.
+The bundled MiKTeX Ghostscript executable is only used as a fallback, if
+Ghostscript is not installed.
+
+### Upgraded programs
+
+* chktex 1.7.8
+* lacheck 1.30
+
+## 22.11.25 - 2022-11-25
+
+### Upgraded programs
+
+* bibsort 2.5
+* bibtex-x 4.00
+* m-tx 0.63a
+* ptex 4.1.0
+* upmendex 1.05
+
 ## 22.10 - 2022-10-17
 
 - [1183](https://github.com/MiKTeX/miktex/issues/1183): MiKTeX 22.8.28 Portable is missing pdflatex

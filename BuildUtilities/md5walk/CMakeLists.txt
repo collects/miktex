@@ -1,14 +1,12 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2006-2022 Christian Schenk
+## Copyright (C) 2006-2023 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
 ## without modifications, as long as this notice is preserved.
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_BUILD_UTILITIES_FOLDER}")
-
-use_static_crt()
 
 set(md5walk_sources
     md5walk-version.h
@@ -27,14 +25,15 @@ add_executable(md5walk ${md5walk_sources})
 set_property(TARGET md5walk PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 target_link_libraries(md5walk
-    ${core_lib_name}
-    miktex-popt-wrapper-static
+    ${core_dll_name}
+    Threads::Threads
+    miktex-popt-wrapper
 )
 
 if (USE_SYSTEM_FMT)
     target_link_libraries(md5walk MiKTeX::Imported::FMT)
 else()
-    target_link_libraries(md5walk ${fmt_lib_name})
+    target_link_libraries(md5walk ${fmt_dll_name})
 endif()
 
 install(TARGETS md5walk DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

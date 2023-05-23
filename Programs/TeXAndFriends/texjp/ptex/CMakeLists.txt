@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2021-2022 Christian Schenk
+## Copyright (C) 2021-2023 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -26,9 +26,3 @@ if(MSVC)
 endif()
 
 include(libkanji.cmake)
-
-add_subdirectory(pbibtex)
-add_subdirectory(pdvitype)
-add_subdirectory(ppltotf)
-add_subdirectory(ptex)
-add_subdirectory(ptftopl)
